@@ -276,6 +276,20 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     case HTTP_EVENT_ON_DATA:
         s_user_ota_recv_size += evt->data_len;
 
+        // --- 여기서부터 추가/수정 시작 ---
+        if (evt->data_len > 0) {
+            uint8_t *data = (uint8_t *)evt->data;
+            int len = evt->data_len;
+            
+            // 무조건 찍히도록 LOGE (Error) 레벨 사용
+            if (len >= 2) {
+                ESP_LOGI("HEX_DEBUG", "Len:%d | Start:[%02X %02X] End:[%02X %02X]", 
+                            len, data[0], data[1], data[len-2], data[len-1]);
+            } else {
+                ESP_LOGI("HEX_DEBUG", "Len:%d | Data:[%02X]", len, data[0]);
+            }
+        }
+
         // chunked check
         if (s_user_ota_is_chunked) {
             ESP_AT_LOGI(TAG, "receive len=%d, receive total len=%d", evt->data_len, s_user_ota_recv_size);
