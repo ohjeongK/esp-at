@@ -664,8 +664,10 @@ static uint8_t at_setup_cmd_usermcusleep(uint8_t para_num)
 static uint8_t at_setupCmdHello(uint8_t para_num)
 {
     // 여기서 파라미터를 파싱하거나 로직을 수행합니다.
-    at_port_write_data((uint8_t *)"Hello from ESP32!\r\n", 19);
-    SP_LOGI(TAG, "at_setupCmdHello");
+    uint8_t buffer[64] = {0};
+    snprintf((char *)buffer, 64, "Hello from ESP32!\r\n");
+    esp_at_port_write_data(buffer, strlen((char *)buffer));
+    ESP_LOGI(TAG, "at_setupCmdHello");
     return ESP_AT_RESULT_OK;
 }
 
