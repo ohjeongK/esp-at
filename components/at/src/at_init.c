@@ -347,6 +347,15 @@ static void at_ota_mark_app_valid_cancel_rollback(void)
 }
 #endif
 
+static esp_err_t my_data_sniffer_handler(void *handler_args, esp_event_base_t base, int32_t id, void *event_data) {
+    if (id == HTTP_EVENT_ON_DATA) {
+        esp_http_client_event_t *evt = (esp_http_client_event_t *)event_data;
+        // 여기서 Hex 로그를 찍거나 STM32로 데이터를 바로 쏩니다.
+        ESP_LOGI(TAG, "[SNIFFER] Data Recv: %d bytes\n", evt->data_len);
+    }
+    return ESP_OK;
+}
+
 void esp_at_init(void)
 {
     // set log level to max
@@ -413,5 +422,11 @@ void esp_at_init(void)
     at_interface_start();
 
     esp_at_ready();
+
+    esp_event_handler_instance_register(ESP_HTTP_CLIENT_EVENT, 
+                                            ESP_EVENT_ANY_ID, 
+                                            &my_data_sniffer_handler, 
+                                            NULL, NULL);
+
     ESP_LOGD(TAG, "esp_at_init done");
 }
