@@ -661,6 +661,14 @@ static uint8_t at_setup_cmd_usermcusleep(uint8_t para_num)
 }
 #endif
 
+static uint8_t at_setupCmdHello(uint8_t para_num)
+{
+    // 여기서 파라미터를 파싱하거나 로직을 수행합니다.
+    at_port_write_data((uint8_t *)"Hello from ESP32!\r\n", 19);
+    SP_LOGI(TAG, "at_setupCmdHello");
+    return ESP_AT_RESULT_OK;
+}
+
 static const esp_at_cmd_struct s_at_user_cmd[] = {
     {"+USERRAM", NULL, at_query_cmd_userram, at_setup_cmd_userram, NULL},
     {"+USEROTA", NULL, NULL, at_setup_cmd_userota, NULL},
@@ -669,6 +677,7 @@ static const esp_at_cmd_struct s_at_user_cmd[] = {
     {"+USERWKMCUCFG", NULL, NULL, at_setup_cmd_userwkmcucfg, NULL},
     {"+USERMCUSLEEP", NULL, NULL, at_setup_cmd_usermcusleep, NULL},
 #endif
+    {"+HELLO", NULL, NULL, at_setupCmdHello, NULL},
 };
 
 bool esp_at_user_cmd_regist(void)
