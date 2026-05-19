@@ -347,13 +347,22 @@ static void at_ota_mark_app_valid_cancel_rollback(void)
 }
 #endif
 
-static esp_err_t my_data_sniffer_handler(void *handler_args, esp_event_base_t base, int32_t id, void *event_data) {
+static void  my_data_sniffer_handler(void *handler_args, esp_event_base_t base, int32_t id, void *event_data) {
+// HTTP_EVENT_ON_DATA인 경우에만 처리
     if (id == HTTP_EVENT_ON_DATA) {
         esp_http_client_event_t *evt = (esp_http_client_event_t *)event_data;
-        // 여기서 Hex 로그를 찍거나 STM32로 데이터를 바로 쏩니다.
-        ESP_LOGI(TAG, "[SNIFFER] Data Recv: %d bytes\n", evt->data_len);
+        
+        if (evt && evt->data_len > 0) {
+            uint8_t *data = (uint8_t *)evt->data;
+            int len = evt->data_len;
+            
+            // 터미널에 확실히 보이도록 printf 사용
+            if (len >= 2) {
+                printf("\n[SNIFFER] Len:%d | Start:%02X %02X, End:%02X %02X\n", 
+                       len, data[0], data[1], data[len-2], data[len-1]);
+            }
+        }
     }
-    return ESP_OK;
 }
 
 void esp_at_init(void)
@@ -423,10 +432,10 @@ void esp_at_init(void)
 
     esp_at_ready();
 
-    esp_event_handler_instance_register(ESP_HTTP_CLIENT_EVENT, 
-                                            ESP_EVENT_ANY_ID, 
-                                            &my_data_sniffer_handler, 
-                                            NULL, NULL);
+    esp_event_handler_instance_register(ESP_HTTP_CLIENT_EVENT,
+                                        ESP_EVENT_ANY_ID,
+                                        (esp_event_handler_t)&my_data_sniffer_handler,
+                                        NULL, NULL);
 
     ESP_LOGD(TAG, "esp_at_init done");
 }
