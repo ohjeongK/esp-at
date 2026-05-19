@@ -361,6 +361,8 @@ static void  my_data_sniffer_handler(void *handler_args, esp_event_base_t base, 
             if (len >= 2) {
                 printf("\n[SNIFFER] Len:%d | Start:%02X %02X, End:%02X %02X\n", 
                        len, data[0], data[1], data[len-2], data[len-1]);
+                ESP_LOGI(TAG, "\n[SNIFFER] Len:%d | Start:%02X %02X, End:%02X %02X\n", 
+                       len, data[0], data[1], data[len-2], data[len-1]);
             }
         }
     }
