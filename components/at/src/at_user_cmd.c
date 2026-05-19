@@ -668,7 +668,7 @@ static uint8_t at_setupCmdHello(uint8_t para_num)
     snprintf((char *)buffer, 64, "Hello from ESP32!\r\n");
     esp_at_port_write_data(buffer, strlen((char *)buffer));
     ESP_LOGI(TAG, "at_setupCmdHello");
-    return ESP_AT_RESULT_OK;
+    return ESP_AT_RESULT_CODE_OK;
 }
 
 static const esp_at_cmd_struct s_at_user_cmd[] = {
