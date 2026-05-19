@@ -28,6 +28,7 @@
 #include "esp_at.h"
 #include "esp_at_init.h"
 #include "esp_at_interface.h"
+#include "esp_http_client.h"
 
 // global variables
 const char *g_at_mfg_nvs_name = "mfg_nvs";
