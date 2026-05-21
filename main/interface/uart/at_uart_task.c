@@ -35,19 +35,32 @@ at_uart_port_pins_t g_uart_port_pin;
 static int32_t at_uart_write_data(uint8_t *data, int32_t len)
 {
     uint32_t length = 0;
+    int32_t data_start_idx = -1;
 
-    if (len >= 2) {
-        // 앞 2자리, 끝 2자리 로그 출력
-        ESP_AT_LOGI("AT_UART_TX", "[Check] Total: %d | Head: 0x%02X 0x%02X | Tail: 0x%02X 0x%02X", 
-                 len, 
-                 data[0], data[1],           // 시작 2바이트
-                 data[len-2], data[len-1]);  // 끝 2바이트
-                 
-        // 문자로도 보고 싶다면 (ASCII 확인용)
-        // ESP_LOGI("AT_UART_TX", "[Char] Head: %c%c | Tail: %c%c", 
-        //          data[0], data[1], data[len-2], data[len-1]);
+    // 1. 첫 번째 콤마(',') 위치를 찾아 데이터 시작점 파악
+    for (int i = 0; i < len; i++) {
+        if (data[i] == ',') {
+            data_start_idx = i + 1;
+            break;
+        }
+    }
+
+    // 2. 헤더 이후의 실제 데이터 로그 출력
+    if (data_start_idx != -1 && len > data_start_idx + 3) {
+        uint8_t *real_data = &data[data_start_idx];
+        int32_t real_len = len - data_start_idx;
+
+        // 뒤에 붙는 \r\nOK\r\n(보통 6~9바이트)을 제외하고 
+        // 실제 데이터의 끝부분 3자리를 정확히 잡기 위해 길이를 보정할 수 있습니다.
+        // 여기서는 순수하게 전송되는 '덩어리'의 끝 3자리를 찍습니다.
+        
+        ESP_AT_LOGI("AT_UART_TX", "[REAL] Total:%d | Head:%02X %02X %02X | Tail:%02X %02X %02X",
+                 real_len,
+                 real_data[0], real_data[1], real_data[2],           // 데이터 시작 3자리
+                 real_data[real_len-3], real_data[real_len-2], real_data[real_len-1]); // 데이터 끝 3자리
     } else {
-        ESP_LOGI("AT_UART_TX", "Sending small data (%d bytes)", len);
+        // 헤더 형식이 아니거나 데이터가 너무 짧은 경우 전체 출력
+        ESP_AT_LOGI("AT_UART_TX", "Raw Send (%d bytes)", len);
     }
     
     length = uart_write_bytes(g_at_cmd_port, (char *)data, len);
