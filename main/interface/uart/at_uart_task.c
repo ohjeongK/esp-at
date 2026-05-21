@@ -36,7 +36,19 @@ static int32_t at_uart_write_data(uint8_t *data, int32_t len)
 {
     uint32_t length = 0;
 
-    ESP_AT_LOGI(TAG, "Sending %d bytes to STM32", len);
+    if (len >= 2) {
+        // 앞 2자리, 끝 2자리 로그 출력
+        ESP_AT_LOGI("AT_UART_TX", "[Check] Total: %d | Head: 0x%02X 0x%02X | Tail: 0x%02X 0x%02X", 
+                 len, 
+                 data[0], data[1],           // 시작 2바이트
+                 data[len-2], data[len-1]);  // 끝 2바이트
+                 
+        // 문자로도 보고 싶다면 (ASCII 확인용)
+        // ESP_LOGI("AT_UART_TX", "[Char] Head: %c%c | Tail: %c%c", 
+        //          data[0], data[1], data[len-2], data[len-1]);
+    } else {
+        ESP_LOGI("AT_UART_TX", "Sending small data (%d bytes)", len);
+    }
     
     length = uart_write_bytes(g_at_cmd_port, (char *)data, len);
     return length;
