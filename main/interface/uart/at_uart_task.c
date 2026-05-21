@@ -45,27 +45,33 @@ static int32_t at_uart_write_data(uint8_t *data, int32_t len)
         }
     }
 
-    // 2. 헤더 이후의 실제 데이터 로그 출력
-    if (data_start_idx != -1 && len > data_start_idx + 3) {
+    // 2. 로그 출력 로직
+    if (data_start_idx != -1 && data_start_idx < len) {
         uint8_t *real_data = &data[data_start_idx];
         int32_t real_len = len - data_start_idx;
 
-        // 뒤에 붙는 \r\nOK\r\n(보통 6~9바이트)을 제외하고 
-        // 실제 데이터의 끝부분 3자리를 정확히 잡기 위해 길이를 보정할 수 있습니다.
-        // 여기서는 순수하게 전송되는 '덩어리'의 끝 3자리를 찍습니다.
-        
-        ESP_AT_LOGI("AT_UART_TX", "[REAL] Total:%d | Head:%02X %02X %02X | Tail:%02X %02X %02X",
-                 real_len,
-                 real_data[0], real_data[1], real_data[2],           // 데이터 시작 3자리
-                 real_data[real_len-3], real_data[real_len-2], real_data[real_len-1]); // 데이터 끝 3자리
-    } else {
-        // 헤더 형식이 아니거나 데이터가 너무 짧은 경우 전체 출력
-        if (len >= 3) {
+        // 최소 5바이트 이상이어야 뒤의 \r\n을 제외하고도 3자리를 찍을 수 있음
+        if (real_len >= 5) {
             ESP_AT_LOGI("AT_UART_TX", "[REAL] Total:%d | Head:%02X %02X %02X | Tail:%02X %02X %02X",
-                len,
-                data[0], data[1], data[2],           // 데이터 시작 3자리
-                data[len-3], data[len-2], data[len-1]); // 데이터 끝 3자리
-        } else {
+                     real_len,
+                     real_data[0], real_data[1], real_data[2],
+                     // \r\n(2바이트)를 제외한 실제 데이터의 끝 3자리
+                     real_data[real_len-5], real_data[real_len-4], real_data[real_len-3]);
+        } 
+        // 데이터가 너무 짧아 \r\n 제외가 불가능한 경우 (안전 장치)
+        else if (real_len >= 3) {
+            ESP_AT_LOGI("AT_UART_TX", "[SHORT] Total:%d | Head:%02X %02X %02X | Tail:TOO_SHORT",
+                     real_len, real_data[0], real_data[1], real_data[2]);
+        }
+    } 
+    else {
+        // 헤더 형식이 아니거나 데이터가 매우 짧은 경우 (Raw 전송 확인)
+        if (len >= 5) {
+            ESP_AT_LOGI("AT_UART_TX", "[RAW] Total:%d | Head:%02X %02X %02X | Tail:%02X %02X %02X",
+                     len,
+                     data[0], data[1], data[2],
+                     data[len-5], data[len-4], data[len-3]);
+        } else if (len > 0) {
             ESP_AT_LOGI("AT_UART_TX", "Raw Send (%d bytes)", len);
         }
     }
