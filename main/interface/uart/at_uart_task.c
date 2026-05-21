@@ -77,8 +77,10 @@ static int32_t at_uart_write_data(uint8_t *data, int32_t len)
     }
     
     length = uart_write_bytes(g_at_cmd_port, (char *)data, len);
-    uart_wait_tx_done(g_at_cmd_port, pdMS_TO_TICKS(500));
-    vTaskDelay(pdMS_TO_TICKS(20));
+    if (len >= 1024) {
+        uart_wait_tx_done(g_at_cmd_port, pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
     return length;
 }
 
