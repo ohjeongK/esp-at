@@ -62,9 +62,9 @@ static int32_t at_uart_write_data(uint8_t *data, int32_t len)
         // 헤더 형식이 아니거나 데이터가 너무 짧은 경우 전체 출력
         if (len >= 3) {
             ESP_AT_LOGI("AT_UART_TX", "[REAL] Total:%d | Head:%02X %02X %02X | Tail:%02X %02X %02X",
-                real_len,
-                real_data[0], real_data[1], real_data[2],           // 데이터 시작 3자리
-                real_data[len-3], real_data[len-2], real_data[len-1]); // 데이터 끝 3자리
+                len,
+                data[0], data[1], data[2],           // 데이터 시작 3자리
+                data[len-3], data[len-2], data[len-1]); // 데이터 끝 3자리
         } else {
             ESP_AT_LOGI("AT_UART_TX", "Raw Send (%d bytes)", len);
         }
