@@ -271,8 +271,7 @@ void at_uart_config_init(uart_config_t *config)
     config->data_bits = CONFIG_AT_UART_DEFAULT_DATABITS - 5;
     config->parity = at_uart_parity_get(CONFIG_AT_UART_DEFAULT_PARITY_BITS);
     config->stop_bits = CONFIG_AT_UART_DEFAULT_STOPBITS;
-    //config->flow_ctrl = CONFIG_AT_UART_DEFAULT_FLOW_CONTROL;
-    config->flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS;
+    config->flow_ctrl = CONFIG_AT_UART_DEFAULT_FLOW_CONTROL;
     config->rx_flow_ctrl_thresh = 122;
 
 #if SOC_UART_SUPPORT_XTAL_CLK
