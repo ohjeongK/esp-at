@@ -191,7 +191,6 @@ static void at_uart_init(void)
     if (!at_nvs_uart_config_get(&config)) {
         at_nvs_uart_config_set(&config);
     }
-    config.flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS;
     uart_param_config(g_at_cmd_port, &config);
 
     // set uart pins
