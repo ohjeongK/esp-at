@@ -36,6 +36,8 @@ static int32_t at_uart_write_data(uint8_t *data, int32_t len)
 {
     uint32_t length = 0;
 
+    ESP_AT_LOGI(TAG, "Sending %d bytes to STM32", len);
+    
     length = uart_write_bytes(g_at_cmd_port, (char *)data, len);
     return length;
 }
